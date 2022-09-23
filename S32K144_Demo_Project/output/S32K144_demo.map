@@ -1,0 +1,365 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+m_interrupts     0x00000000         0x00000400         xr
+m_flash_config   0x00000400         0x00000010         xr
+m_text           0x00000410         0x0007fbf0         xr
+m_data           0x1fff8000         0x00008000         rw
+m_data_2         0x20000000         0x00007000         rw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+                0x00000400                HEAP_SIZE = DEFINED (__heap_size__)?__heap_size__:0x400
+                0x00000400                STACK_SIZE = DEFINED (__stack_size__)?__stack_size__:0x400
+                0x00000400                M_VECTOR_RAM_SIZE = DEFINED (__flash_vector_table__)?0x0:0x400
+
+.interrupts     0x00000000        0x0
+                0x00000000                __VECTOR_TABLE = .
+                0x00000000                __interrupts_start__ = .
+                0x00000000                . = ALIGN (0x4)
+ *(.isr_vector)
+                0x00000000                __interrupts_end__ = .
+                0x00000000                . = ALIGN (0x4)
+
+.flash_config   0x00000400        0x0
+                0x00000400                . = ALIGN (0x4)
+ *(.FlashConfig)
+                0x00000400                . = ALIGN (0x4)
+
+.text           0x00000410      0x810
+                0x00000410                . = ALIGN (0x4)
+ *(.text)
+ .text          0x00000410       0x10 output/Init.o
+                0x00000410                Init
+ .text          0x00000420        0x0 output/Sch.o
+ .text          0x00000420       0x5c output/Task.o
+                0x00000446                Task_Led
+                0x0000045c                Task_MainCycle
+ .text          0x0000047c       0xc8 output/LED.o
+                0x000004ee                LED_Init
+                0x000004fa                LED_On
+                0x00000510                LED_Off
+                0x00000524                LED_Toggle
+                0x00000538                LED_Task_1s
+ .text          0x00000544      0x338 output/Clock.o
+                0x00000584                Clock_Init
+                0x0000059c                Clock_ConfigureOut
+                0x000005f0                Clock_OutBus
+                0x000005fe                Clock_OutSPLL
+                0x0000060c                Clock_OutFIRC
+                0x0000061a                Clock_OutSIRC
+                0x00000628                Clock_InitSOSC_8M
+                0x00000664                Clock_InitSPLL_160M
+                0x000006c0                Clock_InitRUN_80M
+                0x000006ec                Clock_InitSPLLDIV_80M
+                0x00000708                Clock_InitVLPRInRUN
+                0x00000724                Clock_InitForHSRUNInRUN
+                0x00000740                Clock_InitSIRC
+                0x00000790                Clock_DisableSPLL
+                0x000007e0                Clock_DisableFIRC
+                0x00000820                Clock_DisableSOSC
+ .text          0x0000087c      0x11c output/GPIO.o
+                0x000008a2                Port_SPI1Init
+                0x000008f0                Port_Can0Init
+                0x00000930                Port_Init
+ .text          0x00000998      0x120 output/startup.o
+                0x00000998                init_data_bss
+ .text          0x00000ab8      0x160 output/system_S32K144.o
+                0x00000ab8                SystemInit
+                0x00000ae8                SystemCoreClockUpdate
+                0x00000bd8                SystemSoftwareReset
+ *(.text*)
+ *(.rodata)
+ .rodata        0x00000c18        0x4 output/startup.o
+ .rodata        0x00000c1c        0x4 output/system_S32K144.o
+ *(.rodata*)
+ *(.glue_7)
+ .glue_7        0x00000c20        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x00000c20        0x0 linker stubs
+ *(.eh_frame)
+ *(.init)
+ *(.fini)
+                0x00000c20                . = ALIGN (0x4)
+
+.vfp11_veneer   0x00000c20        0x0
+ .vfp11_veneer  0x00000c20        0x0 linker stubs
+
+.v4_bx          0x00000c20        0x0
+ .v4_bx         0x00000c20        0x0 linker stubs
+
+.iplt           0x00000c20        0x0
+ .iplt          0x00000c20        0x0 output/Init.o
+
+.rel.dyn        0x00000c20        0x0
+ .rel.iplt      0x00000c20        0x0 output/Init.o
+
+.ARM.extab
+ *(.ARM.extab* .gnu.linkonce.armextab.*)
+
+.ARM            0x00000c20        0x0
+                0x00000c20                __exidx_start = .
+ *(.ARM.exidx*)
+                0x00000c20                __exidx_end = .
+
+.ctors          0x00000c20        0x0
+                0x00000c20                __CTOR_LIST__ = .
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend.o *crtend?.o) .ctors)
+ *(SORT_BY_NAME(.ctors.*))
+ *(.ctors)
+                0x00000c20                __CTOR_END__ = .
+
+.dtors          0x00000c20        0x0
+                0x00000c20                __DTOR_LIST__ = .
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend.o *crtend?.o) .dtors)
+ *(SORT_BY_NAME(.dtors.*))
+ *(.dtors)
+                0x00000c20                __DTOR_END__ = .
+
+.preinit_array  0x00000c20        0x0
+                [!provide]                PROVIDE (__preinit_array_start = .)
+ *(.preinit_array*)
+                [!provide]                PROVIDE (__preinit_array_end = .)
+
+.init_array     0x00000c20        0x0
+                [!provide]                PROVIDE (__init_array_start = .)
+ *(SORT_BY_NAME(.init_array.*))
+ *(.init_array*)
+                [!provide]                PROVIDE (__init_array_end = .)
+
+.fini_array     0x00000c20        0x0
+                [!provide]                PROVIDE (__fini_array_start = .)
+ *(SORT_BY_NAME(.fini_array.*))
+ *(.fini_array*)
+                [!provide]                PROVIDE (__fini_array_end = .)
+                0x00000c20                __etext = .
+                0x00000c20                __DATA_ROM = .
+
+.interrupts_ram
+                0x1fff8000      0x400
+                0x1fff8000                . = ALIGN (0x4)
+                0x1fff8000                __VECTOR_RAM__ = .
+                0x1fff8000                __RAM_START = .
+                0x1fff8000                __interrupts_ram_start__ = .
+ *(.m_interrupts_ram)
+                0x1fff8400                . = (. + M_VECTOR_RAM_SIZE)
+ *fill*         0x1fff8000      0x400 
+                0x1fff8400                . = ALIGN (0x4)
+                0x1fff8400                __interrupts_ram_end__ = .
+                0x1fff8000                __VECTOR_RAM = DEFINED (__flash_vector_table__)?ORIGIN (m_interrupts):__VECTOR_RAM__
+                0x00000400                __RAM_VECTOR_TABLE_SIZE = DEFINED (__flash_vector_table__)?0x0:(__interrupts_ram_end__ - __interrupts_ram_start__)
+
+.data           0x1fff8400        0x4 load address 0x00000c20
+                0x1fff8400                . = ALIGN (0x4)
+                0x1fff8400                __DATA_RAM = .
+                0x1fff8400                __data_start__ = .
+ *(.data)
+ .data          0x1fff8400        0x0 output/Init.o
+ .data          0x1fff8400        0x0 output/Sch.o
+ .data          0x1fff8400        0x0 output/Task.o
+ .data          0x1fff8400        0x0 output/LED.o
+ .data          0x1fff8400        0x0 output/Clock.o
+ .data          0x1fff8400        0x0 output/GPIO.o
+ .data          0x1fff8400        0x0 output/startup.o
+ .data          0x1fff8400        0x4 output/system_S32K144.o
+                0x1fff8400                SystemCoreClock
+ *(.data*)
+ *(.jcr*)
+                0x1fff8404                . = ALIGN (0x4)
+                0x1fff8404                __data_end__ = .
+                0x00000c24                __DATA_END = (__DATA_ROM + (__data_end__ - __data_start__))
+                0x00000c24                __CODE_ROM = __DATA_END
+
+.igot.plt       0x1fff8404        0x0 load address 0x00000c24
+ .igot.plt      0x1fff8404        0x0 output/Init.o
+
+.code           0x1fff8404        0x0 load address 0x00000c24
+                0x1fff8404                . = ALIGN (0x4)
+                0x1fff8404                __CODE_RAM = .
+                0x1fff8404                __code_start__ = .
+                0x1fff8404                __code_ram_start__ = .
+ *(.code_ram)
+                0x1fff8404                . = ALIGN (0x4)
+                0x1fff8404                __code_end__ = .
+                0x1fff8404                __code_ram_end__ = .
+                0x00000c24                __CODE_END = (__CODE_ROM + (__code_end__ - __code_start__))
+                0x00000c24                __CUSTOM_ROM = __CODE_END
+
+.customSectionBlock
+                0x20000000        0x0 load address 0x00000c24
+                0x20000000                __customSection_start__ = .
+ *(.customSection)
+                0x20000000                __customSection_end__ = .
+                0x00000c24                __CUSTOM_END = (__CUSTOM_ROM + (__customSection_end__ - __customSection_start__))
+
+.bss            0x20000000        0x4
+                0x20000000                . = ALIGN (0x4)
+                0x20000000                __BSS_START = .
+                0x20000000                __bss_start__ = .
+ *(.bss)
+ .bss           0x20000000        0x0 output/Init.o
+ .bss           0x20000000        0x0 output/Sch.o
+ .bss           0x20000000        0x4 output/Task.o
+                0x20000000                timer_1s
+ .bss           0x20000004        0x0 output/LED.o
+ .bss           0x20000004        0x0 output/Clock.o
+ .bss           0x20000004        0x0 output/GPIO.o
+ .bss           0x20000004        0x0 output/startup.o
+ .bss           0x20000004        0x0 output/system_S32K144.o
+ *(.bss*)
+ *(COMMON)
+                0x20000004                . = ALIGN (0x4)
+                0x20000004                __bss_end__ = .
+                0x20000004                __BSS_END = .
+
+.heap           0x20000004      0x404
+                0x20000008                . = ALIGN (0x8)
+ *fill*         0x20000004        0x4 
+                0x20000008                __end__ = .
+                0x20000008                __heap_start__ = .
+                [!provide]                PROVIDE (end = .)
+                [!provide]                PROVIDE (_end = .)
+                [!provide]                PROVIDE (__end = .)
+                0x20000008                __HeapBase = .
+                0x20000408                . = (. + HEAP_SIZE)
+ *fill*         0x20000008      0x400 
+                0x20000408                __HeapLimit = .
+                0x20000408                __heap_limit = .
+                0x20000408                __heap_end__ = .
+                0x20007000                __StackTop = (ORIGIN (m_data_2) + LENGTH (m_data_2))
+                0x20006c00                __StackLimit = (__StackTop - STACK_SIZE)
+                [!provide]                PROVIDE (__stack = __StackTop)
+                0x20007000                __RAM_END = __StackTop
+
+.stack          0x20006c00      0x400
+                0x20006c00                . = ALIGN (0x8)
+                0x20006c00                __stack_start__ = .
+                0x20007000                . = (. + STACK_SIZE)
+ *fill*         0x20006c00      0x400 
+                0x20007000                __stack_end__ = .
+                0x20000000                __START_BSS = __BSS_START
+                0x20000004                __END_BSS = __BSS_END
+                0x20007000                __SP_INIT = __StackTop
+
+.ARM.attributes
+                0x00000000       0x2e
+ *(.ARM.attributes)
+ .ARM.attributes
+                0x00000000       0x2e output/Init.o
+ .ARM.attributes
+                0x0000002e       0x2e output/Sch.o
+ .ARM.attributes
+                0x0000005c       0x2e output/Task.o
+ .ARM.attributes
+                0x0000008a       0x2e output/LED.o
+ .ARM.attributes
+                0x000000b8       0x2e output/Clock.o
+ .ARM.attributes
+                0x000000e6       0x2e output/GPIO.o
+ .ARM.attributes
+                0x00000114       0x2e output/startup.o
+ .ARM.attributes
+                0x00000142       0x2e output/system_S32K144.o
+                0x00000001                ASSERT ((__StackLimit >= __HeapLimit), region m_data_2 overflowed with stack and heap)
+LOAD output/Init.o
+LOAD output/Sch.o
+LOAD output/Task.o
+LOAD output/LED.o
+LOAD output/Clock.o
+LOAD output/GPIO.o
+LOAD output/startup.o
+LOAD output/system_S32K144.o
+OUTPUT(output/S32K144_demo.elf elf32-littlearm)
+LOAD linker stubs
+
+.debug_info     0x00000000     0x162c
+ .debug_info    0x00000000       0x7e output/Init.o
+ .debug_info    0x0000007e       0x64 output/Sch.o
+ .debug_info    0x000000e2      0x181 output/Task.o
+ .debug_info    0x00000263      0x203 output/LED.o
+ .debug_info    0x00000466      0x57c output/Clock.o
+ .debug_info    0x000009e2      0x2b4 output/GPIO.o
+ .debug_info    0x00000c96      0x433 output/startup.o
+ .debug_info    0x000010c9      0x563 output/system_S32K144.o
+
+.debug_abbrev   0x00000000      0x714
+ .debug_abbrev  0x00000000       0x42 output/Init.o
+ .debug_abbrev  0x00000042       0x26 output/Sch.o
+ .debug_abbrev  0x00000068       0xe6 output/Task.o
+ .debug_abbrev  0x0000014e       0xf2 output/LED.o
+ .debug_abbrev  0x00000240      0x16f output/Clock.o
+ .debug_abbrev  0x000003af      0x110 output/GPIO.o
+ .debug_abbrev  0x000004bf      0x119 output/startup.o
+ .debug_abbrev  0x000005d8      0x13c output/system_S32K144.o
+
+.debug_aranges  0x00000000       0xf8
+ .debug_aranges
+                0x00000000       0x20 output/Init.o
+ .debug_aranges
+                0x00000020       0x18 output/Sch.o
+ .debug_aranges
+                0x00000038       0x20 output/Task.o
+ .debug_aranges
+                0x00000058       0x20 output/LED.o
+ .debug_aranges
+                0x00000078       0x20 output/Clock.o
+ .debug_aranges
+                0x00000098       0x20 output/GPIO.o
+ .debug_aranges
+                0x000000b8       0x20 output/startup.o
+ .debug_aranges
+                0x000000d8       0x20 output/system_S32K144.o
+
+.debug_line     0x00000000      0x9bd
+ .debug_line    0x00000000       0x51 output/Init.o
+ .debug_line    0x00000051       0x1d output/Sch.o
+ .debug_line    0x0000006e      0x11e output/Task.o
+ .debug_line    0x0000018c      0x130 output/LED.o
+ .debug_line    0x000002bc      0x288 output/Clock.o
+ .debug_line    0x00000544      0x158 output/GPIO.o
+ .debug_line    0x0000069c      0x17d output/startup.o
+ .debug_line    0x00000819      0x1a4 output/system_S32K144.o
+
+.debug_str      0x00000000      0x8f0
+ .debug_str     0x00000000       0xfa output/Init.o
+                                0x133 (size before relaxing)
+ .debug_str     0x000000fa       0x17 output/Sch.o
+                                0x12c (size before relaxing)
+ .debug_str     0x00000111       0x92 output/Task.o
+                                0x1b0 (size before relaxing)
+ .debug_str     0x000001a3       0x57 output/LED.o
+                                0x1cd (size before relaxing)
+ .debug_str     0x000001fa      0x3bf output/Clock.o
+                                0x4f0 (size before relaxing)
+ .debug_str     0x000005b9       0x84 output/GPIO.o
+                                0x222 (size before relaxing)
+ .debug_str     0x0000063d      0x1dd output/startup.o
+                                0x344 (size before relaxing)
+ .debug_str     0x0000081a       0xd6 output/system_S32K144.o
+                                0x350 (size before relaxing)
+
+.comment        0x00000000       0x49
+ .comment       0x00000000       0x49 output/Init.o
+                                 0x4a (size before relaxing)
+ .comment       0x00000049       0x4a output/Sch.o
+ .comment       0x00000049       0x4a output/Task.o
+ .comment       0x00000049       0x4a output/LED.o
+ .comment       0x00000049       0x4a output/Clock.o
+ .comment       0x00000049       0x4a output/GPIO.o
+ .comment       0x00000049       0x4a output/startup.o
+ .comment       0x00000049       0x4a output/system_S32K144.o
+
+.debug_frame    0x00000000      0x540
+ .debug_frame   0x00000000       0x2c output/Init.o
+ .debug_frame   0x0000002c       0x70 output/Task.o
+ .debug_frame   0x0000009c      0x118 output/LED.o
+ .debug_frame   0x000001b4      0x240 output/Clock.o
+ .debug_frame   0x000003f4       0x94 output/GPIO.o
+ .debug_frame   0x00000488       0x38 output/startup.o
+ .debug_frame   0x000004c0       0x80 output/system_S32K144.o
