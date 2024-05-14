@@ -16,3 +16,5 @@
 
 # Gcc10 vaf Jlink7:
 - https://drive.google.com/file/d/1ccY700DNzdZjMVnrn3D5GYkROwiUEHY4/view?usp=sharing
+# Gcc 10.2 #Pracma
+- https://drive.google.com/file/d/1SoTwYgHojKRJq_YCd-vXLPncajSSsW3k/view?usp=sharing
